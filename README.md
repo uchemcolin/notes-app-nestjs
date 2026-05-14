@@ -41,7 +41,7 @@ INSTALLATION STEPS
 
 1. Clone the repository
 
-git clone https://github.com/YOUR_USERNAME/notes-app-nestjs-v1.git
+git clone https://github.com/uchemcolin/notes-app-nestjs-v1.git
 cd notes-app-nestjs-v1
 
 2. Install dependencies
