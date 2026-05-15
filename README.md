@@ -1,6 +1,6 @@
 # NestJS Notes App
 
-A complete REST API for a notes application built with NestJS, Prisma, PostgreSQL, and JWT authentication.
+A complete REST API for a notes application built with NestJS, Prisma, PostgreSQL, Redis, and JWT authentication.
 
 ================================================================================
 FEATURES
@@ -12,6 +12,7 @@ FEATURES
 - User-specific notes (users can only access their own notes)
 - Input validation with class-validator
 - PostgreSQL database with Prisma ORM
+- Redis caching and Bull queue for background jobs
 - Environment configuration
 - Error handling
 
@@ -22,6 +23,7 @@ TECH STACK
 - Framework: NestJS
 - Database: PostgreSQL
 - ORM: Prisma
+- Queue & Caching: Redis + Bull
 - Authentication: JWT + Passport.js
 - Password Hashing: bcrypt
 - Validation: class-validator + class-transformer
@@ -33,6 +35,7 @@ PREREQUISITES
 
 - Node.js (v18 or higher)
 - PostgreSQL (v14 or higher)
+- Redis (v7 or higher)
 - npm or yarn
 
 ================================================================================
@@ -41,8 +44,8 @@ INSTALLATION STEPS
 
 1. Clone the repository
 
-git clone https://github.com/uchemcolin/notes-app-nestjs-v1.git
-cd notes-app-nestjs-v1
+git clone https://github.com/uchemcolin/notes-app-nestjs-v2.git
+cd notes-app-nestjs-v2
 
 2. Install dependencies
 
@@ -55,10 +58,11 @@ Create a .env file in the root directory with these contents:
 DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/notesdb?schema=public"
 JWT_SECRET="your_super_secret_key_change_this"
 JWT_EXPIRES_IN="1d"
+REDIS_URL="redis://localhost:6379"
 
 4. Set up PostgreSQL database
 
-Make sure PostgreSQL is running on your machine:
+Make sure PostgreSQL is running:
 
 createdb notesdb
 
@@ -198,6 +202,11 @@ src/
 ├── prisma/
 │   ├── prisma.module.ts
 │   └── prisma.service.ts
+├── mail/
+│   └── mail.service.ts
+├── common/
+│   └── helpers, pipes, guards, etc.
+├── bull-board.ts
 ├── app.module.ts
 └── main.ts
 
@@ -294,6 +303,7 @@ Variable          | Description                           | Default
 DATABASE_URL      | PostgreSQL connection string          | Required
 JWT_SECRET        | Secret key for JWT tokens             | Required
 JWT_EXPIRES_IN    | Token expiration time                 | 1d
+REDIS_URL         | Redis connection string               | Required
 
 ================================================================================
 SECURITY FEATURES
@@ -333,27 +343,6 @@ Deploy to platforms:
 - AWS EC2: Full control
 
 ================================================================================
-TROUBLESHOOTING
-================================================================================
-
-DATABASE CONNECTION ERROR:
-
-- Check PostgreSQL is running: sudo systemctl status postgresql
-- Verify DATABASE_URL in .env file
-- Ensure database exists: psql -l
-
-JWT ERRORS:
-
-- Check JWT_SECRET in .env file
-- Verify token is being sent in Authorization header
-- Check token hasn't expired
-
-PRISMA ERRORS:
-
-- Run npx prisma generate after schema changes
-- Run migrations: npx prisma migrate dev
-
-================================================================================
 POSTMAN COLLECTION
 ================================================================================
 
@@ -364,93 +353,7 @@ Copy this JSON to import into Postman:
     "name": "Notes App API",
     "schema": "https://schema.getpostman.com/collection/v2.1.0/collection.json"
   },
-  "item": [
-    {
-      "name": "Auth",
-      "item": [
-        {
-          "name": "Signup",
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/auth/signup"
-          }
-        },
-        {
-          "name": "Login",
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/auth/login"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Users",
-      "item": [
-        {
-          "name": "Get Profile",
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/users/profile"
-          }
-        },
-        {
-          "name": "Get Profile with Notes",
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/users/profile/notes"
-          }
-        },
-        {
-          "name": "Update Profile",
-          "request": {
-            "method": "PATCH",
-            "url": "{{base_url}}/users/profile"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Notes",
-      "item": [
-        {
-          "name": "Get All Notes",
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/notes"
-          }
-        },
-        {
-          "name": "Create Note",
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/notes"
-          }
-        },
-        {
-          "name": "Get Single Note",
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/notes/1"
-          }
-        },
-        {
-          "name": "Update Note",
-          "request": {
-            "method": "PATCH",
-            "url": "{{base_url}}/notes/1"
-          }
-        },
-        {
-          "name": "Delete Note",
-          "request": {
-            "method": "DELETE",
-            "url": "{{base_url}}/notes/1"
-          }
-        }
-      ]
-    }
-  ]
+  "item": [...]
 }
 
 ================================================================================
@@ -489,3 +392,4 @@ ACKNOWLEDGMENTS
 ================================================================================
 
 Happy Coding! 🚀
+GitHub URL: https://github.com/uchemcolin/notes-app-nestjs-v2
