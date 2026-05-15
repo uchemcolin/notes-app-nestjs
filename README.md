@@ -32,7 +32,7 @@ TECH STACK
 ================================================================================
 PREREQUISITES
 ================================================================================
-
+A full-featured Notes application built with NestJS, Prisma, Redis, and Bull queues, featuring user authentication, password reset emails, and real-time job monitoring.
 - Node.js (v18 or higher)
 - PostgreSQL (v14 or higher)
 - Redis (v7 or higher)
@@ -44,8 +44,8 @@ INSTALLATION STEPS
 
 1. Clone the repository
 
-git clone https://github.com/uchemcolin/notes-app-nestjs-v2.git
-cd notes-app-nestjs-v2
+git clone https://github.com/uchemcolin/notes-app-nestjs.git
+cd notes-app-nestjs
 
 2. Install dependencies
 
@@ -392,4 +392,4 @@ ACKNOWLEDGMENTS
 ================================================================================
 
 Happy Coding! 🚀
-GitHub URL: https://github.com/uchemcolin/notes-app-nestjs-v2
+GitHub URL: https://github.com/uchemcolin/notes-app-nestjs
