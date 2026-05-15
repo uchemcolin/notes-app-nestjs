@@ -58,7 +58,7 @@ export class NotesService {
     }
   }
 
-  async findAll(userId: number, paginationDto: PaginationDto) {
+  /*async findAll(userId: number, paginationDto: PaginationDto) {
     const { page = 1, limit = 10 } = paginationDto; // Set default values during destructuring
     const skip = (page - 1) * limit;
 
@@ -87,6 +87,130 @@ export class NotesService {
         totalPages,
         hasNext: page < totalPages,
         hasPrevious: page > 1,
+      },
+    };
+  }*/
+
+  /*async findAll(userId: number, paginationDto: PaginationDto) {
+    const { page = 1, limit = 10, search, searchBy = 'both' } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    // Build the where clause for search
+    let whereClause: any = { userId: userId };
+    
+    if (search && search.trim() !== '') {
+      const searchTerm = search.trim();
+      
+      if (searchBy === 'title') {
+        whereClause.title = {
+          contains: searchTerm,
+          mode: 'insensitive', // 🔑 THIS IS THE KEY FIX
+        };
+      } else if (searchBy === 'content') {
+        whereClause.content = {
+          contains: searchTerm,
+          mode: 'insensitive', // 🔑 THIS IS THE KEY FIX
+        };
+      } else if (searchBy === 'both') {
+        whereClause.OR = [
+          {
+            title: {
+              contains: searchTerm,
+              mode: 'insensitive', // 🔑 THIS IS THE KEY FIX
+            },
+          },
+          {
+            content: {
+              contains: searchTerm,
+              mode: 'insensitive', // 🔑 THIS IS THE KEY FIX
+            },
+          },
+        ];
+      }
+    }
+
+    const [data, total] = await Promise.all([
+      this.prisma.note.findMany({
+        where: whereClause,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.note.count({
+        where: whereClause,
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      success: true,
+      message: search ? `Notes matching "${search}" retrieved successfully` : 'Notes retrieved successfully',
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrevious: page > 1,
+        ...(search && { search, searchBy }),
+      },
+    };
+  }*/
+
+  async findAll(userId: number, paginationDto: PaginationDto) {
+    const { page = 1, limit = 10, search, searchBy = 'both' } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    let allNotes = await this.prisma.note.findMany({
+      where: { userId: userId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    console.log('All notes before filter:', allNotes.map(n => ({ id: n.id, title: n.title })));
+    console.log('Search term:', search);
+    console.log('Search by:', searchBy);
+
+    // Apply search filter in memory (not efficient for large datasets)
+    if (search && search.trim() !== '') {
+      const searchTerm = search.trim().toLowerCase();
+      console.log('Search term lowercase:', searchTerm);
+      
+      allNotes = allNotes.filter(note => {
+        const titleMatch = note.title.toLowerCase().includes(searchTerm);
+        const contentMatch = note.content.toLowerCase().includes(searchTerm);
+        
+        console.log(`Note ${note.id}: title="${note.title}", titleMatch=${titleMatch}, contentMatch=${contentMatch}`);
+        
+        if (searchBy === 'title') {
+          return titleMatch;
+        } else if (searchBy === 'content') {
+          return contentMatch;
+        } else {
+          return titleMatch || contentMatch;
+        }
+      });
+    }
+
+    console.log('Filtered notes:', allNotes.map(n => ({ id: n.id, title: n.title })));
+
+    const total = allNotes.length;
+    const data = allNotes.slice(skip, skip + limit);
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      success: true,
+      message: search ? `Notes matching "${search}" retrieved successfully` : 'Notes retrieved successfully',
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrevious: page > 1,
+        ...(search && { search, searchBy }),
       },
     };
   }

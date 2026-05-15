@@ -25,6 +25,11 @@ export class NotesController {
     return this.notesService.findAll(req.user.id, paginationDto);
   }
 
+  @Get('search/:term')
+  search(@Request() req, @Param('term') term: string, @Query() paginationDto: PaginationDto) {
+    return this.notesService.findAll(req.user.id, { ...paginationDto, search: term });
+  }
+
   @Get(':id')
   findOne(@Request() req, @Param('id') id: string) {
     return this.notesService.findOne(req.user.id, +id);
