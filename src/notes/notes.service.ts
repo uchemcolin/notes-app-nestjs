@@ -1,104 +1,13 @@
-/*import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateNoteDto } from './dto/create-note.dto';
-import { UpdateNoteDto } from './dto/update-note.dto';
-
-@Injectable()
-export class NotesService {
-  constructor(private prisma: PrismaService) {}
-
-  create(userId: number, createNoteDto: CreateNoteDto) {
-    return this.prisma.note.create({
-
-      data: {
-        title: createNoteDto.title,
-        content: createNoteDto.content,
-        userId: userId,
-      },
-    });
-  }
-
-  findAll(userId: number) {
-    return this.prisma.note.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
-  async findOne(userId: number, id: number) {
-    const note = await this.prisma.note.findUnique({
-      where: { id },
-    });
-
-    if (!note) {
-      throw new NotFoundException('Note not found');
-    }
-
-    if (note.userId !== userId) {
-      throw new ForbiddenException('Access denied');
-    }
-
-    return note;
-  }
-
-  async update(userId: number, id: number, updateNoteDto: UpdateNoteDto) {
-    await this.findOne(userId, id);
-
-    return this.prisma.note.update({
-      where: { id },
-      data: updateNoteDto,
-    });
-  }
-
-  async remove(userId: number, id: number) {
-    await this.findOne(userId, id);
-
-    return this.prisma.note.delete({
-      where: { id },
-    });
-  }
-}*/
-
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { Prisma } from '@prisma/client';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class NotesService {
   constructor(private prisma: PrismaService) {}
-
-  /*async create(userId: number, createNoteDto: CreateNoteDto) {
-    try {
-      const note = await this.prisma.note.create({
-        data: {
-          title: createNoteDto.title,
-          content: createNoteDto.content,
-          userId: userId,
-        },
-      });
-
-      return {
-        success: true,
-        message: 'Note created successfully',
-        data: note,
-      };
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2003') {
-          throw new BadRequestException({
-            message: 'User not found',
-            error: 'Invalid user',
-          });
-        }
-      }
-      throw new BadRequestException({
-        message: 'Failed to create note',
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
-      });
-    }
-  }*/
 
   async create(userId: number, createNoteDto: CreateNoteDto) {
     try {
@@ -149,17 +58,36 @@ export class NotesService {
     }
   }
 
-  async findAll(userId: number) {
-    const notes = await this.prisma.note.findMany({
-      where: { userId: userId },
-      orderBy: { createdAt: 'desc' },
-    });
+  async findAll(userId: number, paginationDto: PaginationDto) {
+    const { page = 1, limit = 10 } = paginationDto; // Set default values during destructuring
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.note.findMany({
+        where: { userId: userId },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.note.count({
+        where: { userId: userId },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
 
     return {
       success: true,
       message: 'Notes retrieved successfully',
-      data: notes,
-      count: notes.length,
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrevious: page > 1,
+      },
     };
   }
 

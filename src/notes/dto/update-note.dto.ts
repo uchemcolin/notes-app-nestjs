@@ -1,25 +1,3 @@
-/*import { PartialType } from '@nestjs/mapped-types';
-import { CreateNoteDto } from './create-note.dto';
-
-export class UpdateNoteDto extends PartialType(CreateNoteDto) {}*/
-
-/*import { PartialType } from '@nestjs/mapped-types';
-import { CreateNoteDto } from './create-note.dto';
-import { IsString, MinLength, MaxLength, IsOptional } from 'class-validator';
-
-export class UpdateNoteDto extends PartialType(CreateNoteDto) {
-  @IsOptional()
-  @IsString({ message: 'Title must be a string' })
-  @MinLength(3, { message: 'Title must be at least 3 characters' })
-  @MaxLength(100, { message: 'Title must not exceed 100 characters' })
-  title?: string;
-
-  @IsOptional()
-  @IsString({ message: 'Content must be a string' })
-  @MinLength(1, { message: 'Content cannot be empty' })
-  content?: string;
-}*/
-
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateNoteDto } from './create-note.dto';
 import { IsString, MinLength, MaxLength, IsOptional, IsNotEmpty } from 'class-validator';

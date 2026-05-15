@@ -27,6 +27,8 @@ model User {
 
   notes      Note[]
 
+  resetTokens PasswordResetToken[]  // <-- relation to password reset table
+
   @@map("Users")
 }
 
@@ -41,4 +43,18 @@ model Note {
   user   User @relation(fields: [userId], references: [id])
 
   @@map("Notes")
+}
+
+// NEW TABLE: Password Reset Tokens
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

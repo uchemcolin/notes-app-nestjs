@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, Query } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Controller('notes')
 @UseGuards(JwtAuthGuard)
@@ -14,9 +15,14 @@ export class NotesController {
     return this.notesService.create(req.user.id, createNoteDto);
   }
 
-  @Get()
+  /*@Get()
   findAll(@Request() req) {
     return this.notesService.findAll(req.user.id);
+  }*/
+
+  @Get()
+  findAll(@Request() req, @Query() paginationDto: PaginationDto) {
+    return this.notesService.findAll(req.user.id, paginationDto);
   }
 
   @Get(':id')

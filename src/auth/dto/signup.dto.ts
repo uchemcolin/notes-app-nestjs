@@ -1,24 +1,3 @@
-/*import { IsEmail, IsString, IsOptional, MinLength } from 'class-validator';
-
-export class SignupDto {
-  @IsString()
-  firstName!: string;
-
-  @IsOptional()
-  @IsString()
-  middleName?: string;
-
-  @IsString()
-  lastName!: string;
-
-  @IsEmail()
-  email!: string;
-
-  @IsString()
-  @MinLength(6)
-  password!: string;
-}*/
-
 import { IsEmail, IsString, MinLength, MaxLength, IsOptional, Matches } from 'class-validator';
 
 export class SignupDto {

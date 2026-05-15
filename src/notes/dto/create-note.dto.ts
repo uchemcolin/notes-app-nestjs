@@ -1,29 +1,3 @@
-/*import { IsString, IsOptional } from 'class-validator';
-
-export class CreateNoteDto {
-  @IsString()
-  title!: string;
-
-  @IsOptional()
-  @IsString()
-  content!: string;
-}*/
-
-/*import { IsString, MinLength, MaxLength, IsNotEmpty } from 'class-validator';
-
-export class CreateNoteDto {
-  @IsString({ message: 'Title must be a string' })
-  @IsNotEmpty({ message: 'Title is required' })
-  @MinLength(3, { message: 'Title must be at least 3 characters' })
-  @MaxLength(100, { message: 'Title must not exceed 100 characters' })
-  title!: string;
-
-  @IsString({ message: 'Content must be a string' })
-  @IsNotEmpty({ message: 'Content is required' })
-  @MinLength(1, { message: 'Content cannot be empty' })
-  content!: string;
-}*/
-
 import { IsString, MinLength, MaxLength, IsNotEmpty, Matches } from 'class-validator';
 
 export class CreateNoteDto {
